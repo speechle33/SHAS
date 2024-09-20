@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Confirm Delete</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>Confirm Delete</h1>
+      <p>Are you sure you want to delete user "{{ user.username }}"?</p>
+      <form method="post">
+        {{ form.hidden_tag() }}
+        <button type="submit" name="confirm" value="yes" class="btn btn-danger">Yes</button>
+        <button type="submit" name="cancel" value="no" class="btn btn-secondary">No</button>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Start Game</title>
+  </head>
+  <body>
+    <h1>Start Game</h1>
+    <form method="post" action="">
+      {{ form.hidden_tag() }}
+      <p>
+        {{ form.bet_amount.label }}<br>
+        {{ form.bet_amount(size=32) }}<br>
+        {% for error in form.bet_amount.errors %}
+          <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+      </p>
+      <p>{{ form.submit() }}</p>
+    </form>
+  </body>
+</html>
