@@ -46,7 +46,7 @@ class SelectUserForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(SelectUserForm, self).__init__(*args, **kwargs)
-        self.user_id.choices = [(user.id, user.username) for user in User.query.all()]
+        self.user_id.choices = [(user.id, f"{user.username} (Balance: {user.balance})") for user in User.query.all()]
 
 class ConfirmDeleteForm(FlaskForm):
     confirm = SubmitField('Yes')

@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from config import Config
+from flask_session import Session
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -20,6 +21,8 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     csrf.init_app(app)
     login.init_app(app)
+
+    Session(app)
 
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)

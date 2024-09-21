@@ -1,13 +1,41 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, session, request, jsonify
+from flask import Blueprint, render_template, flash, redirect, url_for, session, request
 from flask_login import current_user, login_user, logout_user, login_required
 from app import db
-from app.forms import LoginForm, RegistrationForm, BetForm, DeleteUserForm, SelectUserForm, ConfirmDeleteForm
 from app.models import User, Game
 from werkzeug.security import generate_password_hash, check_password_hash
 from urllib.parse import urlparse
-from wtforms.validators import ValidationError
+from app.forms import (
+    LoginForm, RegistrationForm, DeleteUserForm, SelectUserForm, 
+    BetForm, ConfirmDeleteForm, ConfirmDeleteForm
+)
+
 
 bp = Blueprint('main', __name__)
+
+@bp.route('/')
+def index():
+    if current_user.is_authenticated and not session.get('logged_out_once'):
+        logout_user()
+        session['logged_out_once'] = True
+    if not current_user.is_authenticated:
+        session.pop('logged_out_once', None)
+    return redirect(url_for('main.index_page'))
+
+@bp.route('/index', methods=['GET', 'POST'])
+def index_page():
+    form = SelectUserForm()
+    delete_form = DeleteUserForm()
+    return render_template('index.html', form=form, delete_form=delete_form)
+
+@bp.route('/index2/<username>', methods=['GET'])
+@login_required
+def index2(username):
+    if username != current_user.username:
+        flash("You are not authorized to view this page")
+        return redirect(url_for('main.index'))
+
+    logout_form = DeleteUserForm()
+    return render_template('index2.html', username=username, logout_form=logout_form)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -22,7 +50,7 @@ def register():
             db.session.add(user)
             db.session.commit()
             flash('Congratulations, you are now a registered user!')
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main.index_page'))
         except Exception as e:
             flash(f'Could not register user: {e}')
             db.session.rollback()
@@ -31,16 +59,10 @@ def register():
             flash('Form validation failed. See errors below.')
     return render_template('register.html', title='Register', form=form)
 
-@bp.route('/')
-def index():
-    form = SelectUserForm()
-    delete_form = DeleteUserForm()
-    return render_template('index.html', form=form, delete_form=delete_form)
-
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.index2', username=current_user.username))
     form = LoginForm()
     if request.method == 'GET' and 'username' in request.args:
         form.username.data = request.args.get('username')
@@ -50,15 +72,17 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
+        session['logged_in_user'] = user.username
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for('main.index2', username=user.username)
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
 @bp.route('/logout')
 def logout():
     logout_user()
+    session.pop('logged_in_user', None)
     return redirect(url_for('main.index'))
 
 @bp.route('/confirm_delete/<int:user_id>', methods=['GET', 'POST'])
@@ -73,7 +97,7 @@ def confirm_delete(user_id):
             flash(f'User {user.username} deleted successfully.')
             return redirect(url_for('main.index'))
         elif form.cancel.data:
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main.index2', username=current_user.username))
     return render_template('confirm_delete.html', form=form, user=user)
 
 @bp.route('/delete_user', methods=['POST'])
@@ -102,7 +126,7 @@ def select_user():
         user = User.query.filter_by(id=form.user_id.data).first()
         if user:
             # Имя пользователя передается через параметр
-            return redirect(url_for('main.login', username=user.username))  
+            return redirect(url_for('main.login', username=user.username))
         else:
             flash('User not found.')
     return redirect(url_for('main.index'))

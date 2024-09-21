@@ -1,53 +1,51 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Blackjack Game</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  </head>
-  <body>
-    <div class="container mt-5">
-      <h1>Blackjack Game</h1>
-      {% if current_user.is_authenticated %}
-        <p>Welcome, {{ current_user.username }}!</p>
-      {% endif %}
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Blackjack Game</h1>
 
-      <button class="btn btn-primary mt-3" onclick="window.location.href='{{ url_for('main.register') }}'">Register Player</button>
+    <button class="btn btn-primary mt-3" onclick="window.location.href='{{ url_for('main.register') }}'">Register Player</button>
 
-      <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">
-        {{ delete_form.hidden_tag() }}
-        <input type="hidden" name="username" value="{{ current_user.username }}">
-        <button type="submit" class="btn btn-danger" {% if not current_user.is_authenticated %}disabled{% endif %}>Delete User</button>
-      </form>
-
-      <form method="post" action="{{ url_for('main.select_user') }}">
+    <form method="post" action="{{ url_for('main.select_user') }}" class="mt-3">
         {{ form.hidden_tag() }}
         <div class="form-group">
-          {{ form.user_id.label }}<br>
-          {{ form.user_id(class="form-control") }}
-          {% for error in form.user_id.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-          {% endfor %}
+            {{ form.user_id.label }}<br>
+            {{ form.user_id(class="form-control") }}
+            {% for error in form.user_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </div>
         <button type="submit" class="btn btn-primary">Select User</button>
-      </form>
+    </form>
 
-      {% if current_user.is_authenticated %}
-        <form method="get" action="{{ url_for('main.start_game', player_id=current_user.id) }}">
-          <button type="submit" class="btn btn-success mt-3">Start Game</button>
-        </form>
-        <button class="btn btn-secondary mt-3" onclick="window.location.href='{{ url_for('main.logout') }}'">Logout</button>
-      {% endif %}
+    <form action="#" method="post" class="mt-3">
+        <button type="submit" class="btn btn-success mt-3" disabled>Start Game</button>
+    </form>
 
-      {% with messages = get_flashed_messages() %}
+    <form action="#" method="post" class="mt-3">
+        <button type="submit" class="btn btn-secondary mt-3" disabled>Logout</button>
+    </form>
+
+    <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">
+        {{ delete_form.hidden_tag() }}
+        <input type="hidden" name="username" value="{{ current_user.username }}">
+        <button type="submit" class="btn btn-danger" disabled>Delete User</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
         {% if messages %}
-          <div class="mt-3">
-            {% for message in messages %}
-            <div class="alert alert-info">{{ message }}</div>
-            {% endfor %}
-          </div>
+            <div class="mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            </div>
         {% endif %}
-      {% endwith %}
-    </div>
-  </body>
+    {% endwith %}
+</div>
+</body>
 </html>
