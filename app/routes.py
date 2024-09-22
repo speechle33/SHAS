@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, session, request, jsonify, flash
+from flask import g, Blueprint, render_template, flash, redirect, url_for, session, request, jsonify, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from app import db
 from app.models import User, Game
@@ -12,7 +12,6 @@ import uuid
 from app.blackjack import BlackjackGame
 
 bp = Blueprint('main', __name__)
-background_id=0
 
 @bp.route('/')
 
@@ -145,7 +144,7 @@ def select_user():
 @login_required
 def start_game(player_id):
     form = BetForm()
-
+    g.current_user = current_user  # для доступности в шаблонах
     if request.method == 'GET':
         return render_template('start_game.html', balance=current_user.balance, form=form)
 
@@ -171,7 +170,7 @@ def start_game(player_id):
         session['bet'] = bet
 
         return redirect(url_for('main.game'))
-    return render_template('start_game.html', title='Start Game', form=form)
+    return render_template('start_game.html', title='Start Game', form=form, username=current_user.username)
 
 @bp.route('/game', methods=['GET', 'POST'])
 @login_required
@@ -179,6 +178,8 @@ def game():
     game_id = session.get('game_id')
     bet = session.get('bet')
     game = Game.query.get(game_id)
+    g.current_user = current_user  # для доступности в шаблонах
+
     if not game:
         return redirect(url_for('main.start_game', player_id=current_user.id))
 
@@ -188,12 +189,12 @@ def game():
                 blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
                 card = blackjack_game.player_draw_card()
                 game.state = blackjack_game.get_game_state()
-                db.session.commit()
-                player_busted = blackjack_game.is_player_busted()
 
-                if player_busted:
+                if blackjack_game.is_player_busted():
                     flash('You lose! Player is busted.')
-                    return redirect(url_for('main.game_over'))
+                    game.state['game_over'] = True
+                    game.state['game_message'] = 'You lose! Player is busted.'
+                db.session.commit()
 
             except Exception as e:
                 flash(str(e))
@@ -207,7 +208,6 @@ def game():
                     blackjack_game.dealer_draw_card()
 
                 game.state = blackjack_game.get_game_state()
-                db.session.commit()
 
                 dealer_busted = blackjack_game.is_dealer_busted()
                 player_score = blackjack_game.get_player_score()
@@ -216,17 +216,20 @@ def game():
                 if dealer_busted or player_score > dealer_score:
                     flash('You win!')
                     current_user.receive_winnings(session['bet'] * 2)
+                    game.state['game_message'] = 'You win!'
                 else:
                     flash('You lose!')
+                    game.state['game_message'] = 'You lose!'
 
+                game.state['game_over'] = True
                 db.session.commit()
-                return redirect(url_for('main.game_over'))
+
             except Exception as e:
                 flash(str(e))
                 return redirect(url_for('main.game'))
 
     game_state = game.state
-    return render_template('game.html', state=game_state, bet=bet)
+    return render_template('game.html', state=game_state, bet=bet, username=current_user.username)
 
 @bp.route('/pass', methods=['POST'])
 @login_required
