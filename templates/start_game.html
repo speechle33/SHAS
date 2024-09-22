@@ -1,20 +1,25 @@
-{% extends "base.html" %}
-
-{% block title %}Start Game{% endblock %}
-
-{% block content %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>New Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
 <div class="container mt-5">
-    <h1>Start Game</h1>
-    <form method="post" action="">
+    <h1>New Game</h1>
+    <p>Your current balance is: {{ balance }}</p>
+    <form method="post" action="{{ url_for('main.start_game', player_id=current_user.id) }}">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.bet_amount.label }}<br>
-            {{ form.bet_amount(class="form-control") }}<br>
+            <label for="bet_amount">Bet Amount:</label>
+            {{ form.bet_amount(class="form-control") }}
             {% for error in form.bet_amount.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </div>
-        <button type="submit" class="btn btn-primary">Place Bet</button>
+        <button type="submit" class="btn btn-success mt-3">Start New Game</button>
     </form>
 </div>
-{% endblock %}
+</body>
+</html>

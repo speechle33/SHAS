@@ -1,47 +1,46 @@
-{% extends "base.html" %}
-
-{% block title %}Blackjack Game{% endblock %}
-
-{% block content %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Blackjack Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
 <div class="container mt-5">
     <h1>Blackjack Game</h1>
-    <div>
-        <h2>Dealer's Hand</h2>
-        <div id="dealer-hand">{{ state['dealer_hand'] }}</div>
-        <h2>Your Hand</h2>
-        <div id="player-hand">{{ state['player_hand'] }}</div>
-        <button id="hit-button" class="btn btn-warning mt-3">Hit</button>
-        <button id="stand-button" class="btn btn-primary mt-3">Stand</button>
-        <div id="game-status"></div>
+
+    <h2>Dealer's Hand</h2>
+    <div id="dealer-hand">
+        {% for card in state['dealer_hand'] %}
+            <img src="{{ card.image }}" alt="{{ card.value }} of {{ card.suit }}">
+        {% endfor %}
+    </div>
+    <h3>Dealer's Score: {{ state['dealer_score'] }}</h3>
+
+    <h2>Your Hand</h2>
+    <div id="player-hand">
+        {% for card in state['player_hand'] %}
+            <img src="{{ card.image }}" alt="{{ card.value }} of {{ card.suit }}">
+        {% endfor %}
+    </div>
+    <h3>Your Score: {{ state['player_score'] }}</h3>
+
+    <form method="post">
+        <button name="take_card" value="1" type="submit" class="btn btn-primary">Take Card</button>
+    </form>
+    <form method="post" class="mt-2">
+        <button name="pass" value="1" type="submit" class="btn btn-secondary">Pass</button>
+    </form>
+
+    <div id="game-over-msg">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger mt-3">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
 </div>
-<script>
-function updateGameState(state) {
-    document.getElementById('dealer-hand').innerHTML = state.dealer_hand.join(', ');
-    document.getElementById('player-hand').innerHTML = state.player_hand.join(', ');
-
-    let gameStatus = '';
-    if (state.player_score > 21) {
-        gameStatus = 'You bust!';
-    } else if (state.dealer_score > 21) {
-        gameStatus = 'Dealer busts!';
-    } else if (state.player_score === 21) {
-        gameStatus = 'Blackjack!';
-    }
-
-    document.getElementById('game-status').innerHTML = gameStatus;
-}
-
-document.getElementById('hit-button').addEventListener('click', () => {
-    fetch('/hit', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => updateGameState(data));
-});
-
-document.getElementById('stand-button').addEventListener('click', () => {
-    fetch('/stand', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => updateGameState(data));
-});
-</script>
-{% endblock %}
+</body>
+</html>

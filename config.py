@@ -8,7 +8,9 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
     SESSION_TYPE = 'filesystem'
     SESSION_FILE_DIR = os.path.join(basedir, 'flask_sessions')
     SESSION_USE_SIGNER = True
+
+    # Отключить CSRF
+    WTF_CSRF_ENABLED = False

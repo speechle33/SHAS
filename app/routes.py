@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, session, request
+from flask import Blueprint, render_template, flash, redirect, url_for, session, request, jsonify, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from app import db
 from app.models import User, Game
@@ -9,6 +9,7 @@ from app.forms import (
     BetForm, ConfirmDeleteForm, ConfirmDeleteForm
 )
 import uuid
+from app.blackjack import BlackjackGame
 
 bp = Blueprint('main', __name__)
 background_id=0
@@ -144,27 +145,35 @@ def select_user():
 @login_required
 def start_game(player_id):
     form = BetForm()
+
+    if request.method == 'GET':
+        return render_template('start_game.html', balance=current_user.balance, form=form)
+
     if form.validate_on_submit():
         bet = form.bet_amount.data
+
         try:
             current_user.place_bet(bet)
         except ValueError as e:
             flash(str(e))
             return redirect(url_for('main.start_game', player_id=player_id))
 
-        from app.blackjack import BlackjackGame
+        # Инициализация игры
         game = BlackjackGame()
+        game.start_new_game()
         game_state = game.get_game_state()
         new_game = Game(user_id=player_id, state=game_state)
         db.session.add(new_game)
         db.session.commit()
 
+        # Сохранение данных игры в сессию
         session['game_id'] = new_game.id
         session['bet'] = bet
+
         return redirect(url_for('main.game'))
     return render_template('start_game.html', title='Start Game', form=form)
 
-@bp.route('/game')
+@bp.route('/game', methods=['GET', 'POST'])
 @login_required
 def game():
     game_id = session.get('game_id')
@@ -172,72 +181,96 @@ def game():
     game = Game.query.get(game_id)
     if not game:
         return redirect(url_for('main.start_game', player_id=current_user.id))
+
+    if request.method == 'POST':
+        if 'take_card' in request.form:
+            try:
+                blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
+                card = blackjack_game.player_draw_card()
+                game.state = blackjack_game.get_game_state()
+                db.session.commit()
+                player_busted = blackjack_game.is_player_busted()
+
+                if player_busted:
+                    flash('You lose! Player is busted.')
+                    return redirect(url_for('main.game_over'))
+
+            except Exception as e:
+                flash(str(e))
+                return redirect(url_for('main.game'))
+
+        elif 'pass' in request.form:
+            try:
+                blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
+
+                while blackjack_game.should_dealer_draw():
+                    blackjack_game.dealer_draw_card()
+
+                game.state = blackjack_game.get_game_state()
+                db.session.commit()
+
+                dealer_busted = blackjack_game.is_dealer_busted()
+                player_score = blackjack_game.get_player_score()
+                dealer_score = blackjack_game.get_dealer_score()
+
+                if dealer_busted or player_score > dealer_score:
+                    flash('You win!')
+                    current_user.receive_winnings(session['bet'] * 2)
+                else:
+                    flash('You lose!')
+
+                db.session.commit()
+                return redirect(url_for('main.game_over'))
+            except Exception as e:
+                flash(str(e))
+                return redirect(url_for('main.game'))
+
     game_state = game.state
     return render_template('game.html', state=game_state, bet=bet)
 
-@bp.route('/hit', methods=['POST'])
+@bp.route('/pass', methods=['POST'])
 @login_required
-def hit():
+def pass_turn():
     game_id = session.get('game_id')
     game = Game.query.get(game_id)
-    if game:
-        from app.blackjack import BlackjackGame
-        blackjack_game = BlackjackGame()
-        blackjack_game.deck = game.state['deck']
-        blackjack_game.player_hand = game.state['player_hand']
-        blackjack_game.dealer_hand = game.state['dealer_hand']
-        blackjack_game.hit(blackjack_game.player_hand)
 
-        game_state = blackjack_game.get_game_state()
-        game.state = game_state
+    if game is None:
+        return 'No active game', 400
+
+    print("pass_turn game state:", game.state)  # Отладка
+    try:
+        blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
+
+        while blackjack_game.should_dealer_draw():
+            blackjack_game.dealer_draw_card()
+
+        game.state = blackjack_game.get_game_state()
         db.session.commit()
 
-        result = blackjack_game.is_over()
-        if result:
-            handle_game_over(result)
+        dealer_busted = blackjack_game.is_dealer_busted()
+        player_score = blackjack_game.get_player_score()
+        dealer_score = blackjack_game.get_dealer_score()
 
-        return jsonify(game_state)
-    return 'No active game', 400
+        game_result = None
+        if dealer_busted or player_score > dealer_score:
+            game_result = 'player_wins'
+            current_user.receive_winnings(session['bet'] * 2)
+        else:
+            game_result = 'player_loses'
 
-@bp.route('/stand', methods=['POST'])
-@login_required
-def stand():
-    game_id = session.get('game_id')
-    game = Game.query.get(game_id)
-    if game:
-        from app.blackjack import BlackjackGame
-        blackjack_game = BlackjackGame()
-        blackjack_game.deck = game.state['deck']
-        blackjack_game.player_hand = game.state['player_hand']
-        blackjack_game.dealer_hand = game.state['dealer_hand']
-
-        while blackjack_game.calculate_score(blackjack_game.dealer_hand) < 17:
-            blackjack_game.hit(blackjack_game.dealer_hand)
-
-        game_state = blackjack_game.get_game_state()
-        game.state = game_state
         db.session.commit()
 
-        result = blackjack_game.is_over()
-        if result:
-            handle_game_over(result)
-
-        return jsonify(game_state)
-    return 'No active game', 400
-
-def handle_game_over(result):
-    bet = session.get('bet')
-    game_id = session.get('game_id')
-    game = Game.query.get(game_id)
-    from app.blackjack import BlackjackGame
-    blackjack_game = BlackjackGame()
-    blackjack_game.deck = game.state['deck']
-    blackjack_game.player_hand = game.state['player_hand']
-    blackjack_game.dealer_hand = game.state['dealer_hand']
-
-    if result == 'player_bust' or blackjack_game.calculate_score(blackjack_game.player_hand) < blackjack_game.calculate_score(blackjack_game.dealer_hand):
-        current_user.balance -= bet
-    else:
-        current_user.balance += bet * 2
-
-    db.session.commit()
+        return jsonify({
+            'dealer_hand': blackjack_game.dealer_hand,
+            'dealer_score': blackjack_game.get_dealer_score(),
+            'game_over': True,
+            'result': game_result
+        })
+    except Exception as e:
+        print("Error in pass:", str(e))  # Отладка
+        return 'Error processing pass turn', 500
+		
+@bp.route('/game_over')
+@login_required
+def game_over():
+     return render_template('game_over.html')
