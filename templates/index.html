@@ -1,20 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Blackjack Game</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Blackjack Game{% endblock %}
+
+{% block content %}
 <div class="container mt-5">
-    <h1>Blackjack Game</h1>
-
-    <button class="btn btn-primary mt-3" onclick="window.location.href='{{ url_for('main.register') }}'">Register Player</button>
-
+<br><br>
+<h2 style="color:#c3cdd9;">Registered players</h2>
     <form method="post" action="{{ url_for('main.select_user') }}" class="mt-3">
         {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.user_id.label }}<br>
+        <div class="form-group" style="width: 300px; padding-top: 0px; padding-bottom: 5px"> 
             {{ form.user_id(class="form-control") }}
             {% for error in form.user_id.errors %}
                 <span style="color: red;">[{{ error }}]</span>
@@ -23,29 +17,4 @@
         <button type="submit" class="btn btn-primary">Select User</button>
     </form>
 
-    <form action="#" method="post" class="mt-3">
-        <button type="submit" class="btn btn-success mt-3" disabled>Start Game</button>
-    </form>
-
-    <form action="#" method="post" class="mt-3">
-        <button type="submit" class="btn btn-secondary mt-3" disabled>Logout</button>
-    </form>
-
-    <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">
-        {{ delete_form.hidden_tag() }}
-        <input type="hidden" name="username" value="{{ current_user.username }}">
-        <button type="submit" class="btn btn-danger" disabled>Delete User</button>
-    </form>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="mt-3">
-                {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-</div>
-</body>
-</html>
+{% endblock %}

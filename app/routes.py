@@ -8,11 +8,13 @@ from app.forms import (
     LoginForm, RegistrationForm, DeleteUserForm, SelectUserForm, 
     BetForm, ConfirmDeleteForm, ConfirmDeleteForm
 )
-
+import uuid
 
 bp = Blueprint('main', __name__)
+background_id=0
 
 @bp.route('/')
+
 def index():
     if current_user.is_authenticated and not session.get('logged_out_once'):
         logout_user()
@@ -27,15 +29,15 @@ def index_page():
     delete_form = DeleteUserForm()
     return render_template('index.html', form=form, delete_form=delete_form)
 
-@bp.route('/index2/<username>', methods=['GET'])
+@bp.route('/index2/<session_id>', methods=['GET'])
 @login_required
-def index2(username):
-    if username != current_user.username:
-        flash("You are not authorized to view this page")
+def index2(session_id):
+    if session_id != session.get('session_id'):
+        flash("Invalid session ID")
         return redirect(url_for('main.index'))
 
     logout_form = DeleteUserForm()
-    return render_template('index2.html', username=username, logout_form=logout_form)
+    return render_template('index2.html', username=current_user.username, logout_form=logout_form)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -62,7 +64,9 @@ def register():
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index2', username=current_user.username))
+        session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
+        session['session_id'] = session_id
+        return redirect(url_for('main.index2', session_id=session_id))
     form = LoginForm()
     if request.method == 'GET' and 'username' in request.args:
         form.username.data = request.args.get('username')
@@ -73,9 +77,12 @@ def login():
             return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
         session['logged_in_user'] = user.username
+
+        session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
+        session['session_id'] = session_id
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
-            next_page = url_for('main.index2', username=user.username)
+            next_page = url_for('main.index2', session_id=session_id)
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
@@ -83,6 +90,7 @@ def login():
 def logout():
     logout_user()
     session.pop('logged_in_user', None)
+    session.pop('session_id', None)
     return redirect(url_for('main.index'))
 
 @bp.route('/confirm_delete/<int:user_id>', methods=['GET', 'POST'])
@@ -97,7 +105,8 @@ def confirm_delete(user_id):
             flash(f'User {user.username} deleted successfully.')
             return redirect(url_for('main.index'))
         elif form.cancel.data:
-            return redirect(url_for('main.index2', username=current_user.username))
+            session_id = session.get('session_id')
+            return redirect(url_for('main.index2', session_id=session_id))  # используем session_id из сессии
     return render_template('confirm_delete.html', form=form, user=user)
 
 @bp.route('/delete_user', methods=['POST'])
@@ -232,9 +241,3 @@ def handle_game_over(result):
         current_user.balance += bet * 2
 
     db.session.commit()
-
-@bp.route('/leaderboard')
-@login_required
-def leaderboard():
-    users = User.query.order_by(User.balance.desc()).all()
-    return render_template('leaderboard.html', users=users)
