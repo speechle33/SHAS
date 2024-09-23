@@ -283,7 +283,3 @@ def pass_turn():
         })
     except Exception as e:
         return 'Error processing pass turn', 500
-		
-@bp.route('/test_static')
-def test_static():
-    return url_for('static', filename='historyHandler.js')

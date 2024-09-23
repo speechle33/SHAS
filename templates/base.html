@@ -53,5 +53,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	
+<script>
+    window.onload = function() {
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ noBackExitsApp: true }, '');
+            window.history.pushState({ noBackExitsApp: true }, '');
+            window.onpopstate = function(event) {
+                if (event.state && event.state.noBackExitsApp) {
+                    window.history.pushState({ noBackExitsApp: true }, '');
+                    location.reload(); // Reload the page instead of using back/forward navigation
+                }
+            };
+        }
+    };
+</script>
+	
 </body>
 </html>
