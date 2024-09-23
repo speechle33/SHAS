@@ -3,9 +3,9 @@
 {% block title %}Blackjack Game{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
 
-    <form method="get" action="{{ url_for('main.start_game', player_id=current_user.id) }}">
+<div class="container mt-5">
+    <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
         <button type="submit" class="btn btn-success mt-3">Start Game</button>
     </form>
 

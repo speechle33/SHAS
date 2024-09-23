@@ -11,10 +11,13 @@ from app.forms import (
 import uuid
 from app.blackjack import BlackjackGame
 
-bp = Blueprint('main', __name__)
+bp = Blueprint('main', __name__, static_folder='static')
+
+def generate_session_id():
+    return uuid.uuid4().hex[:4]  # генерируем 4 символа
+
 
 @bp.route('/')
-
 def index():
     if current_user.is_authenticated and not session.get('logged_out_once'):
         logout_user()
@@ -36,8 +39,11 @@ def index2(session_id):
         flash("Invalid session ID")
         return redirect(url_for('main.index'))
 
+    new_session_id = generate_session_id()
+    session['session_id'] = new_session_id
+
     logout_form = DeleteUserForm()
-    return render_template('index2.html', username=current_user.username, logout_form=logout_form)
+    return render_template('index2.html', username=current_user.username, logout_form=logout_form, session_id=new_session_id)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -89,8 +95,7 @@ def login():
 @bp.route('/logout')
 def logout():
     logout_user()
-    session.pop('logged_in_user', None)
-    session.pop('session_id', None)
+    session.clear()
     return redirect(url_for('main.index'))
 
 @bp.route('/confirm_delete/<int:user_id>', methods=['GET', 'POST'])
@@ -106,8 +111,8 @@ def confirm_delete(user_id):
             return redirect(url_for('main.index'))
         elif form.cancel.data:
             session_id = session.get('session_id')
-            return redirect(url_for('main.index2', session_id=session_id))  # используем session_id из сессии
-    return render_template('confirm_delete.html', form=form, user=user)
+            return redirect(url_for('main.index2', session_id=session_id))
+    return render_template('confirm_delete.html', form=form, user=user, session_id=session.get('session_id'))
 
 @bp.route('/delete_user', methods=['POST'])
 @login_required
@@ -134,34 +139,36 @@ def select_user():
 
         user = User.query.filter_by(id=form.user_id.data).first()
         if user:
-            # Имя пользователя передается через параметр
             return redirect(url_for('main.login', username=user.username))
         else:
             flash('User not found.')
     return redirect(url_for('main.index'))
 
-@bp.route('/start_game/<int:player_id>', methods=['GET', 'POST'])
+@bp.route('/start_game/<session_id>', methods=['GET', 'POST'])
 @login_required
-def start_game(player_id):
+def start_game(session_id):
+    if session_id != session.get('session_id'):
+        flash("Invalid session ID")
+        return redirect(url_for('main.index'))
+
     form = BetForm()
-    g.current_user = current_user  # для доступности в шаблонах
+
     if request.method == 'GET':
-        return render_template('start_game.html', balance=current_user.balance, form=form)
+        return render_template('start_game.html', balance=current_user.balance, form=form, session_id=session_id)
 
     if form.validate_on_submit():
         bet = form.bet_amount.data
-
         try:
             current_user.place_bet(bet)
         except ValueError as e:
             flash(str(e))
-            return redirect(url_for('main.start_game', player_id=player_id))
+            return redirect(url_for('main.start_game', session_id=session_id))
 
         # Инициализация игры
         game = BlackjackGame()
         game.start_new_game()
         game_state = game.get_game_state()
-        new_game = Game(user_id=player_id, state=game_state)
+        new_game = Game(user_id=current_user.id, state=game_state)
         db.session.add(new_game)
         db.session.commit()
 
@@ -169,19 +176,25 @@ def start_game(player_id):
         session['game_id'] = new_game.id
         session['bet'] = bet
 
-        return redirect(url_for('main.game'))
-    return render_template('start_game.html', title='Start Game', form=form, username=current_user.username)
+        new_session_id = generate_session_id()
+        session['session_id'] = new_session_id
 
-@bp.route('/game', methods=['GET', 'POST'])
+        return redirect(url_for('main.game', session_id=new_session_id))
+
+    return render_template('start_game.html', title='Start Game', form=form, session_id=session_id)
+
+@bp.route('/game/<session_id>', methods=['GET', 'POST'])
 @login_required
-def game():
+def game(session_id):
+    if session_id != session.get('session_id'):
+        flash("Invalid session ID")
+        return redirect(url_for('main.index'))
+
     game_id = session.get('game_id')
     bet = session.get('bet')
     game = Game.query.get(game_id)
-    g.current_user = current_user  # для доступности в шаблонах
-
     if not game:
-        return redirect(url_for('main.start_game', player_id=current_user.id))
+        return redirect(url_for('main.start_game', session_id=session_id))
 
     if request.method == 'POST':
         if 'take_card' in request.form:
@@ -198,7 +211,7 @@ def game():
 
             except Exception as e:
                 flash(str(e))
-                return redirect(url_for('main.game'))
+                return redirect(url_for('main.game', session_id=session_id))
 
         elif 'pass' in request.form:
             try:
@@ -226,10 +239,10 @@ def game():
 
             except Exception as e:
                 flash(str(e))
-                return redirect(url_for('main.game'))
+                return redirect(url_for('main.game', session_id=session_id))
 
     game_state = game.state
-    return render_template('game.html', state=game_state, bet=bet, username=current_user.username)
+    return render_template('game.html', state=game_state, bet=bet, session_id=session_id, username=current_user.username)
 
 @bp.route('/pass', methods=['POST'])
 @login_required
@@ -240,7 +253,6 @@ def pass_turn():
     if game is None:
         return 'No active game', 400
 
-    print("pass_turn game state:", game.state)  # Отладка
     try:
         blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
 
@@ -270,10 +282,8 @@ def pass_turn():
             'result': game_result
         })
     except Exception as e:
-        print("Error in pass:", str(e))  # Отладка
         return 'Error processing pass turn', 500
 		
-@bp.route('/game_over')
-@login_required
-def game_over():
-     return render_template('game_over.html')
+@bp.route('/test_static')
+def test_static():
+    return url_for('static', filename='historyHandler.js')

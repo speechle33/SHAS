@@ -1,6 +1,6 @@
 {% extends "base2.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Blackjack Game{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -23,19 +23,18 @@
     <h3>Your Score: {{ state['player_score'] }}</h3>
 
     {% if state['game_over'] %}
-        <!-- Сообщение о завершении игры и предложения начать новую игру -->
         <h3>{{ state['game_message'] }}</h3>
-        <form method="get" action="{{ url_for('main.start_game', player_id=current_user.id) }}">
+        <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
             <button type="submit" class="btn btn-success mt-3">Play Again</button>
         </form>
-        <form method="get" action="{{ url_for('main.logout') }}" class="mt-3">
-            <button type="submit" class="btn btn-danger">Logout</button>
+        <form method="get" action="{{ url_for('main.index') }}" class="mt-3">
+            <button type="submit" class="btn btn-danger">Back to Home</button>
         </form>
     {% else %}
-        <form method="post">
+        <form method="post" action="{{ url_for('main.game', session_id=session_id) }}">
             <button name="take_card" value="1" type="submit" class="btn btn-primary">Take Card</button>
         </form>
-        <form method="post" class="mt-2">
+        <form method="post" action="{{ url_for('main.game', session_id=session_id) }}" class="mt-2">
             <button name="pass" value="1" type="submit" class="btn btn-secondary">Pass</button>
         </form>
     {% endif %}
