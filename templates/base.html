@@ -54,18 +54,27 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	
 <script>
-    window.onload = function() {
-        if (window.history && window.history.pushState) {
-            window.history.pushState({ noBackExitsApp: true }, '');
-            window.history.pushState({ noBackExitsApp: true }, '');
-            window.onpopstate = function(event) {
-                if (event.state && event.state.noBackExitsApp) {
-                    window.history.pushState({ noBackExitsApp: true }, '');
-                    location.reload(); // Reload the page instead of using back/forward navigation
-                }
-            };
+    function disableBackButton() {
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, '', window.location.href);
+            window.location.replace('/restricted_navigation');
+        };
+    }
+
+    disableBackButton();
+
+    // Перехват после загрузки страницы
+    window.onload = disableBackButton;
+
+    // Перехват после кликов и прочих действий
+    document.addEventListener('click', disableBackButton, true);
+    document.addEventListener('submit', disableBackButton, true);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' || e.key === 'F5' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            disableBackButton();
         }
-    };
+    }, true);
 </script>
 	
 </body>

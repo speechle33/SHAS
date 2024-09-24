@@ -283,3 +283,7 @@ def pass_turn():
         })
     except Exception as e:
         return 'Error processing pass turn', 500
+		
+@bp.route('/restricted_navigation')
+def restricted_navigation():
+    return render_template('error_navigation.html')
