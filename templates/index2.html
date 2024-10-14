@@ -6,7 +6,7 @@
 
 <div class="container mt-5">
     <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
-        <button type="submit" class="btn btn-success mt-3">Start Game</button>
+        <button type="submit" class="btn btn-success mt-3" {% if balance == 0 %}disabled{% endif %}>Start Game</button>
     </form>
 
     <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">

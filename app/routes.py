@@ -43,7 +43,8 @@ def index2(session_id):
     session['session_id'] = new_session_id
 
     logout_form = DeleteUserForm()
-    return render_template('index2.html', username=current_user.username, logout_form=logout_form, session_id=new_session_id)
+    user_balance = current_user.balance
+    return render_template('index2.html', username=current_user.username, logout_form=logout_form, session_id=new_session_id, balance=user_balance)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -64,7 +65,7 @@ def register():
             db.session.rollback()
     else:
         if request.method == 'POST':
-            flash('Form validation failed. See errors below.')
+            flash('Form validation failed.')
     return render_template('register.html', title='Register', form=form)
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -187,7 +188,7 @@ def start_game(session_id):
 @login_required
 def game(session_id):
     if session_id != session.get('session_id'):
-        flash("Invalid session ID")
+        flash("Invalid session ID", 'danger')
         return redirect(url_for('main.index'))
 
     game_id = session.get('game_id')
@@ -204,13 +205,13 @@ def game(session_id):
                 game.state = blackjack_game.get_game_state()
 
                 if blackjack_game.is_player_busted():
-                    flash('You lose! Player is busted.')
+                    flash('You lose!', 'danger')
                     game.state['game_over'] = True
                     game.state['game_message'] = 'You lose! Player is busted.'
                 db.session.commit()
 
             except Exception as e:
-                flash(str(e))
+                flash(str(e), 'danger')
                 return redirect(url_for('main.game', session_id=session_id))
 
         elif 'pass' in request.form:
@@ -227,23 +228,23 @@ def game(session_id):
                 dealer_score = blackjack_game.get_dealer_score()
 
                 if dealer_busted or player_score > dealer_score:
-                    flash('You win!')
+                    flash('You win!', 'success')
                     current_user.receive_winnings(session['bet'] * 2)
                     game.state['game_message'] = 'You win!'
                 else:
-                    flash('You lose!')
+                    flash('You lose!', 'danger')
                     game.state['game_message'] = 'You lose!'
 
                 game.state['game_over'] = True
                 db.session.commit()
 
             except Exception as e:
-                flash(str(e))
+                flash(str(e), 'danger')
                 return redirect(url_for('main.game', session_id=session_id))
 
     game_state = game.state
-    return render_template('game.html', state=game_state, bet=bet, session_id=session_id, username=current_user.username)
-
+    return render_template('game.html', state=game_state, bet=bet, session_id=session_id, username=current_user.username, balance=current_user.balance)
+	
 @bp.route('/pass', methods=['POST'])
 @login_required
 def pass_turn():
