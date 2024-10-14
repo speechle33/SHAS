@@ -1,53 +1,88 @@
+# импорт необходимых классов из Flask-WTF и WTForms
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, NumberRange
 from app.models import User
 
+# Форма для входа пользователя
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
-
+    # Поле для ввода имени пользователя, обязательное для заполнения
+	username = StringField('Username', validators=[DataRequired()])
+    # Поле для ввода пароля, обязательное для заполнения
+	password = PasswordField('Password', validators=[DataRequired()])
+    # Флажок "Запомнить меня" для сохранения сессии
+	remember_me = BooleanField('Remember Me')
+    # Кнопка отправки формы
+	submit = SubmitField('Sign In')
+	
+# Форма для регистрации нового пользователя
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField(
+     # Поле для ввода имени пользователя, обязательное для заполнения
+	username = StringField('Username', validators=[DataRequired()])
+    # Поле для ввода электронной почты, обязательное и должно соответствовать формату email
+	email = StringField('Email', validators=[DataRequired(), Email()])
+    # Поле для ввода пароля, обязательное для заполнения
+	password = PasswordField('Password', validators=[DataRequired()])
+    # Поле для повторного ввода пароля, обязательное и должно совпадать с полем 'password'
+	password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
+    # Кнопка отправки формы
+	submit = SubmitField('Register')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
+    # Валидатор для проверки уникальности имени пользователя
+	def validate_username(self, username):
+        # Поиск пользователя с введенным именем
+		user = User.query.filter_by(username=username.data).first()
         if user is not None:
-            raise ValidationError('Please use a different username.')
+            # Если такой пользователь существует, то ошибка валидации
+			raise ValidationError('Please use a different username.')
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
+     # Валидатор для проверки уникальности электронной почты
+	def validate_email(self, email):
+        # Поиск пользователя с введенной электронной почтой
+		user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError('Please use a different email address.')
+            # Если такой пользователь существует, то ошибка валидации
+			raise ValidationError('Please use a different email address.')
 
+# Форма для размещения ставки в игре
 class BetForm(FlaskForm):
-    bet_amount = IntegerField('Bet Amount', validators=[DataRequired(), NumberRange(min=1)])
-    submit = SubmitField('Place Bet')
+    # Поле для ввода суммы ставки, обязательное и должно быть не менее 1
+	bet_amount = IntegerField('Bet Amount', validators=[DataRequired(), NumberRange(min=1)])
+    # Кнопка отправки формы
+	submit = SubmitField('Place Bet')
 
+# Форма для удаления пользователя
 class DeleteUserForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    submit = SubmitField('Delete User')
+    # Поле для ввода имени пользователя, которого нужно удалить, обязательное для заполнения
+	username = StringField('Username', validators=[DataRequired()])
+    # Кнопка отправки формы
+	submit = SubmitField('Delete User')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
+    # Валидатор для проверки существования пользователя с введенным именем
+	def validate_username(self, username):
+        # Поиск пользователя по имени
+		user = User.query.filter_by(username=username.data).first()
         if user is None:
-            raise ValidationError('User not found.')
+            # Если пользователь не найден, то ошибка валидации
+			raise ValidationError('User not found.')
 
+# Форма для выбора пользователя для входа
 class SelectUserForm(FlaskForm):
-    user_id = SelectField('Select User', coerce=int)
-    submit = SubmitField('Select User')
+    # Выпадающий список для выбора пользователя по его ID, преобразует значение в целое число
+	user_id = SelectField('Select User', coerce=int)
+    # Кнопка отправки формы
+	submit = SubmitField('Select User')
 
-    def __init__(self, *args, **kwargs):
+    # Инициализация формы, заполняет выпадающий список пользователями из базы данных
+	def __init__(self, *args, **kwargs):
         super(SelectUserForm, self).__init__(*args, **kwargs)
-        self.user_id.choices = [(user.id, f"{user.username} (Balance: {user.balance})") for user in User.query.all()]
+        # Заполнение вариантов выбора пользователями с отображением их баланса
+		self.user_id.choices = [(user.id, f"{user.username} (Balance: {user.balance})") for user in User.query.all()]
 
+# Форма для подтверждения удаления пользователя
 class ConfirmDeleteForm(FlaskForm):
-    confirm = SubmitField('Yes')
-    cancel = SubmitField('No')
+    # Кнопка подтверждения удаления
+	confirm = SubmitField('Yes')
+    # Кнопка отмены удаления
+	cancel = SubmitField('No')

@@ -2,31 +2,35 @@ import requests
 
 class BlackjackGame:
     def __init__(self, deck_id=None, player_hand=None, dealer_hand=None):
-        self.api_base_url = "https://deckofcardsapi.com/api/deck"
-        self.deck_id = deck_id
-        self.player_hand = player_hand if player_hand is not None else []
-        self.dealer_hand = dealer_hand if dealer_hand is not None else []
+        self.api_base_url = "https://deckofcardsapi.com/api/deck" # Базовый URL для работы с API колоды карт
+        self.deck_id = deck_id # Идентификатор текущей колоды карт
+        self.player_hand = player_hand if player_hand is not None else [] # Список карт в руке игрока
+        self.dealer_hand = dealer_hand if dealer_hand is not None else [] # Список карт в руке дилера
 
         if not self.deck_id:
-            self._initialize_deck()
+            self._initialize_deck() # Инициализация новой колоды, если deck_id не указан
 
     def _initialize_deck(self):
-        response = requests.get(f"{self.api_base_url}/new/shuffle/?deck_count=1")
-        data = response.json()
-        self.deck_id = data["deck_id"]
+        # Запрос на создание и перемешивание новой колоды
+		response = requests.get(f"{self.api_base_url}/new/shuffle/?deck_count=1")
+         # Преобразование ответа в формат JSON
+		data = response.json()
+        # Сохранение идентификатора новой колоды
+		self.deck_id = data["deck_id"]
 
     def _draw_cards(self, count):
+	# Запрос на вытягивание карт из колоды
         response = requests.get(f"{self.api_base_url}/{self.deck_id}/draw/?count={count}")
-        return response.json()["cards"]
+        return response.json()["cards"] # Возвращает список вытянутых карт
 
     def start_new_game(self):
-        self.player_hand = self._draw_cards(2)
+        self.player_hand = self._draw_cards(2) # Вытягиваются две карты для игрока
 
     def get_player_score(self):
-        return self._calculate_score(self.player_hand)
+        return self._calculate_score(self.player_hand) # Вычисление счета для руки игрока
 
     def get_dealer_score(self):
-        return self._calculate_score(self.dealer_hand)
+        return self._calculate_score(self.dealer_hand) # Вычисление счета для руки дилера
 
     def _calculate_score(self, hand):
         score = 0
@@ -41,21 +45,21 @@ class BlackjackGame:
         for card in hand:
             value = card["value"]
             if value.isdigit():
-                score += int(value)
+                score += int(value) # Добавление числовых карт к счету
             else:
-                score += card_values.get(value, 0)
+                score += card_values.get(value, 0) # Добавление очков лицевых карт
             if value == "ACE":
                 ace_count += 1
 
         while score > 21 and ace_count:
             score -= 10  # convert an ace from 11 to 1
-            ace_count -= 1
+            ace_count -= 1 # Уменьшение счетчика тузов
 
-        return score
+        return score # Возвращение итогового счета
 
     def player_draw_card(self):
-        card = self._draw_cards(1)[0]
-        self.player_hand.append(card)
+        card = self._draw_cards(1)[0] # Вытягивание одной карты
+        self.player_hand.append(card) # Добавление карты к руке игрока
         return card
 
     def dealer_draw_card(self):

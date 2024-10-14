@@ -1,3 +1,4 @@
+# импорт модулей и функций
 from flask import g, Blueprint, render_template, flash, redirect, url_for, session, request, jsonify, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from app import db
@@ -11,30 +12,31 @@ from app.forms import (
 import uuid
 from app.blackjack import BlackjackGame
 
+#Создание Blueprint для основного маршрута
 bp = Blueprint('main', __name__, static_folder='static')
 
 def generate_session_id():
-    return uuid.uuid4().hex[:4]  # генерируем 4 символа
+    return uuid.uuid4().hex[:4]  # генерируем 4 символа. Уникальный идентификатор сессии. Возвращает первые 4 символа
 
 
-@bp.route('/')
+@bp.route('/') #Вход. если пользователь + аутентиф, но не разлогинился -> разлогинить
 def index():
     if current_user.is_authenticated and not session.get('logged_out_once'):
         logout_user()
         session['logged_out_once'] = True
     if not current_user.is_authenticated:
         session.pop('logged_out_once', None)
-    return redirect(url_for('main.index_page'))
+    return redirect(url_for('main.index_page')) 
 
 @bp.route('/index', methods=['GET', 'POST'])
-def index_page():
+def index_page(): #Отобразить основную страницу с формами выбора пользователя и удаления
     form = SelectUserForm()
     delete_form = DeleteUserForm()
     return render_template('index.html', form=form, delete_form=delete_form)
 
 @bp.route('/index2/<session_id>', methods=['GET'])
 @login_required
-def index2(session_id):
+def index2(session_id):#После аутетиф. Проверяет id сессии, генерирует новый. Отображает имя пользователя и форма для разлогинивания
     if session_id != session.get('session_id'):
         flash("Invalid session ID")
         return redirect(url_for('main.index'))
@@ -46,20 +48,20 @@ def index2(session_id):
     return render_template('index2.html', username=current_user.username, logout_form=logout_form, session_id=new_session_id)
 
 @bp.route('/register', methods=['GET', 'POST'])
-def register():
+def register(): #регистрация нового пользователя. проверка макс. кол-ва юзеров. Сохраняет в БД при успехе регистрации
     form = RegistrationForm()
     if form.validate_on_submit():
         if User.query.count() >= 10:
             flash('Max number of players reached')
             return redirect(url_for('main.register'))
-        try:
+        try: # для исключений. позволяет продолжать работу, если ошибка. Ниже то, где мб ошибка
             user = User(username=form.username.data, email=form.email.data)
             user.password_hash = generate_password_hash(form.password.data)
             db.session.add(user)
             db.session.commit()
             flash('Congratulations, you are now a registered user!')
             return redirect(url_for('main.index_page'))
-        except Exception as e:
+        except Exception as e: #код для обработки исключения
             flash(f'Could not register user: {e}')
             db.session.rollback()
     else:
@@ -68,7 +70,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @bp.route('/login', methods=['GET', 'POST'])
-def login():
+def login(): # вход юзера. Есть уже +аутент -> index2. При успешном логине генерит id сессии и перенаправл. на след. стр
     if current_user.is_authenticated:
         session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
         session['session_id'] = session_id
@@ -93,14 +95,14 @@ def login():
     return render_template('login.html', title='Sign In', form=form)
 
 @bp.route('/logout')
-def logout():
+def logout(): #выход юзера. Очистка сессии, перенапр. на главную
     logout_user()
     session.clear()
     return redirect(url_for('main.index'))
 
 @bp.route('/confirm_delete/<int:user_id>', methods=['GET', 'POST'])
 @login_required
-def confirm_delete(user_id):
+def confirm_delete(user_id): # подтвердить удаление юзера. Если подтв -> удалить из БД
     form = ConfirmDeleteForm()
     user = User.query.get_or_404(user_id)
     if request.method == 'POST':
@@ -116,7 +118,7 @@ def confirm_delete(user_id):
 
 @bp.route('/delete_user', methods=['POST'])
 @login_required
-def delete_user():
+def delete_user(): #обработка запроса на удаление. Разрешает удалять только текущего аутент юзера
     form = DeleteUserForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -130,7 +132,7 @@ def delete_user():
     return redirect(url_for('main.index'))
 
 @bp.route('/select_user', methods=['POST'])
-def select_user():
+def select_user(): # выбор пользователя на вход. Перенапр. на страницу входа с указанным именем пользователя. 
     form = SelectUserForm()
     if form.validate_on_submit():
         if current_user.is_authenticated:
@@ -146,7 +148,7 @@ def select_user():
 
 @bp.route('/start_game/<session_id>', methods=['GET', 'POST'])
 @login_required
-def start_game(session_id):
+def start_game(session_id): # иниц новой игры. ПРоверка id сессии, обработка ставки, новая игра
     if session_id != session.get('session_id'):
         flash("Invalid session ID")
         return redirect(url_for('main.index'))
@@ -185,7 +187,7 @@ def start_game(session_id):
 
 @bp.route('/game/<session_id>', methods=['GET', 'POST'])
 @login_required
-def game(session_id):
+def game(session_id): #маршрут для игры в блэкджек. Действия взять карту или пас и обновить состояние игры
     if session_id != session.get('session_id'):
         flash("Invalid session ID")
         return redirect(url_for('main.index'))
@@ -198,9 +200,9 @@ def game(session_id):
 
     if request.method == 'POST':
         if 'take_card' in request.form:
-            try:
+            try: # восстановить состояние игры из БД
                 blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
-                card = blackjack_game.player_draw_card()
+                card = blackjack_game.player_draw_card() #игрок берет карту
                 game.state = blackjack_game.get_game_state()
 
                 if blackjack_game.is_player_busted():
@@ -214,10 +216,11 @@ def game(session_id):
                 return redirect(url_for('main.game', session_id=session_id))
 
         elif 'pass' in request.form:
-            try:
+            try: # восстановить состояние игры из БД
                 blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
 
-                while blackjack_game.should_dealer_draw():
+                #ход дилера
+				while blackjack_game.should_dealer_draw():
                     blackjack_game.dealer_draw_card()
 
                 game.state = blackjack_game.get_game_state()
@@ -246,17 +249,18 @@ def game(session_id):
 
 @bp.route('/pass', methods=['POST'])
 @login_required
-def pass_turn():
+def pass_turn(): #пас. завершение хода игрока, действия дилера. Возврат результатов в формате JSON
     game_id = session.get('game_id')
     game = Game.query.get(game_id)
 
     if game is None:
         return 'No active game', 400
 
-    try:
+    try: #Восстанавливаем состояние игры из базы данных
         blackjack_game = BlackjackGame(deck_id=game.state['deck_id'], player_hand=game.state['player_hand'], dealer_hand=game.state['dealer_hand'])
 
-        while blackjack_game.should_dealer_draw():
+        # Ход дилера
+		while blackjack_game.should_dealer_draw():
             blackjack_game.dealer_draw_card()
 
         game.state = blackjack_game.get_game_state()
@@ -285,5 +289,5 @@ def pass_turn():
         return 'Error processing pass turn', 500
 		
 @bp.route('/restricted_navigation')
-def restricted_navigation():
+def restricted_navigation(): #Страница с ошибкой при попытке несанкционированной навигации.
     return render_template('error_navigation.html')
