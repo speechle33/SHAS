@@ -16,7 +16,6 @@ bp = Blueprint('main', __name__, static_folder='static')
 def generate_session_id():
     return uuid.uuid4().hex[:4]  # генерируем 4 символа
 
-
 @bp.route('/')
 def index():
     if current_user.is_authenticated and not session.get('logged_out_once'):
@@ -50,11 +49,11 @@ def index2(session_id):
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        if User.query.count() >= 10:
+        if User.query.count() >= 20:
             flash('Max number of players reached')
             return redirect(url_for('main.register'))
         try:
-            user = User(username=form.username.data, email=form.email.data)
+            user = User(username=form.username.data, nickname=form.nickname.data)
             user.password_hash = generate_password_hash(form.password.data)
             db.session.add(user)
             db.session.commit()
@@ -288,3 +287,22 @@ def pass_turn():
 @bp.route('/restricted_navigation')
 def restricted_navigation():
     return render_template('error_navigation.html')
+	
+@bp.route('/change_background', methods=['POST'])
+def change_background():
+    background_image = request.form.get('background_image')
+    session['background_image'] = background_image
+    return redirect(request.referrer)
+	
+@bp.route('/leaderboard', methods=['GET'])
+def leaderboard():
+    page = request.args.get('page', 1, type=int)
+    per_page = 5  # Количество пользователей на одной странице
+
+    # Сортировка по балансу по убыванию, затем по nickname по возрастанию
+    users_paginated = User.query.order_by(User.balance.desc(), User.nickname.asc()).paginate(page=page, per_page=per_page)
+
+    next_url = url_for('main.leaderboard', page=users_paginated.next_num) if users_paginated.has_next else None
+    prev_url = url_for('main.leaderboard', page=users_paginated.prev_num) if users_paginated.has_prev else None
+
+    return render_template('leaderboard.html', users_paginated=users_paginated.items, next_url=next_url, prev_url=prev_url)

@@ -5,73 +5,75 @@
     <title>{% block title %}Blackjack Game{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
-<body>
-    <style>
-	body {
-        background-image: url('https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950');
- 		background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            margin: 0;
-    </style>
-	
-	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgba(255, 255, 255, 0.7);padding-bottom: 15px;">
-        <a class="navbar-brand" style="color:#155724; font-weight: bold;" href="{{ url_for('main.index') }}">Blackjack Game</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-<li class="nav-item" style="padding-top: 8px;width: 130px;color:#155724;font-weight: bold;height: 30px;">
-						<p>Welcome,</p>
-					</li>
-<li class="nav-item" style="padding-top: 2px;width: 80px;color:#1807ff9c;font-weight: bold;height: 30px;font-size: 24px">
-						<p>{{ current_user.username }}</p>
-					</li>					
-<li class="nav-item" style="padding-top: 8px;width: 110px;color:#155724;font-weight: bold;height: 30px;">
-						<p>Your balance</p>						
-					</li>						
-<li class="nav-item" style="padding-top: 8px;width: 80px;color:#155724;font-weight: bold;height: 30px;">
-						<p>
-        <img src="https://w7.pngwing.com/pngs/388/12/png-transparent-coin-business-finance-loan-payment-coin-saving-gold-coin-payment.png" alt="картинка монеток" style="height: 20px; vertical-align: middle;">
-        {{ current_user.balance }}
-    </p>		
-					</li>	
-					<li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
-                        <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
-                    </li>
-            </ul>
-        </div>
-    </nav>   
-    <div class="container">
-                <div class="mt-3" style="width: 0px;">
-                </div></div>    
-        {% block content %}{% endblock %}
-    </div> 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<body style="background-image: url('{{ session.get('background_image', 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; margin: 0;">
+
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgba(255, 255, 255, 0.7);padding-bottom: 15px;">
+    <a class="navbar-brand" style="color:#155724; font-weight: bold;" href="{{ url_for('main.index') }}">Blackjack Game</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item" style="padding-top: 8px;width: 130px;color:#155724;font-weight: bold;height: 30px;">
+                <p>Welcome,</p>
+            </li>
+            <li class="nav-item" style="padding-top: 2px;width: 80px;color:#1807ff9c;font-weight: bold;height: 30px;font-size: 24px">
+                <p>{{ current_user.nickname }}</p>
+            </li>
+            <li class="nav-item" style="padding-top: 8px;width: 110px;color:#155724;font-weight: bold;height: 30px;">
+                <p>Your balance</p>
+            </li>
+            <li class="nav-item" style="padding-top: 8px;width: 80px;color:#155724;font-weight: bold;height: 30px;">
+                <p>
+                    <img src="https://w7.pngwing.com/pngs/388/12/png-transparent-coin-business-finance-loan-payment-coin-saving-gold-coin-payment.png" alt="картинка монеток" style="height: 20px; vertical-align: middle;">
+                    {{ current_user.balance }}
+                </p>
+            </li>
+            <li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
+                <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <form method="post" action="{{ url_for('main.change_background') }}" style="width: 200px;>
+        <div class="form-group">
+            <br>
+            <select id="background_image" name="background_image" class="form-control">
+                <option value="https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950" {% if session.get('background_image') == 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950' %}selected{% endif %}>Poker table</option>
+                <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s" {% if session.get('background_image') == 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s' %}selected{% endif %}>Another green</option>
+            </select>
+        </div><br>
+        <button type="submit" class="btn btn-primary" style="
+    margin-left: 125px;">Change Background</button>
+    </form>
+    <div class="mt-3" style="width: 0;">
+    </div>
+</div>
+{% block content %}{% endblock %}
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
-    function disableBackButton() {
+function disableBackButton() {
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function() {
         window.history.pushState(null, '', window.location.href);
-        window.onpopstate = function() {
-            window.history.pushState(null, '', window.location.href);
-            window.location.replace('/restricted_navigation');
-        };
+        window.location.replace('/restricted_navigation');
+    };
+}
+
+disableBackButton();
+
+// Перехват после загрузки страницы
+window.onload = disableBackButton;
+
+// Перехват после кликов и прочих действий
+document.addEventListener('click', disableBackButton, true);
+document.addEventListener('submit', disableBackButton, true);
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' || e.key === 'F5' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        disableBackButton();
     }
-
-    disableBackButton();
-
-    // Перехват после загрузки страницы
-    window.onload = disableBackButton;
-
-    // Перехват после кликов и прочих действий
-    document.addEventListener('click', disableBackButton, true);
-    document.addEventListener('submit', disableBackButton, true);
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Backspace' || e.key === 'F5' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            disableBackButton();
-        }
-    }, true);
+}, true);
 </script>
 
 </body>

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, NumberRange
+from wtforms.validators import DataRequired, ValidationError, EqualTo, NumberRange
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -11,10 +11,9 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    nickname = StringField('Nickname', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -22,10 +21,10 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different username.')
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
+    def validate_nickname(self, nickname):
+        user = User.query.filter_by(nickname=nickname.data).first()
         if user is not None:
-            raise ValidationError('Please use a different email address.')
+            raise ValidationError('Please use a different nickname.')
 
 class BetForm(FlaskForm):
     bet_amount = IntegerField('Bet Amount', validators=[DataRequired(), NumberRange(min=1)])
@@ -46,7 +45,7 @@ class SelectUserForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(SelectUserForm, self).__init__(*args, **kwargs)
-        self.user_id.choices = [(user.id, f"{user.username} (Balance: {user.balance})") for user in User.query.all()]
+        self.user_id.choices = [(user.id, f"{user.nickname} (Balance: {user.balance})") for user in User.query.all()]
 
 class ConfirmDeleteForm(FlaskForm):
     confirm = SubmitField('Yes')

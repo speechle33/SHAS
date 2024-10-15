@@ -3,14 +3,14 @@ from app import db
 from flask_login import UserMixin
 from app import login
 
-MAX_PLAYERS = 10
+MAX_PLAYERS = 20
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    nickname = db.Column(db.String(64), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    balance = db.Column(db.Integer, default=10000, nullable=False)
+    balance = db.Column(db.Integer, default=10000, nullable=False)  # Убедитесь, что тип данных тут Integer
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     games = db.relationship('Game', backref='player', lazy='dynamic')
 

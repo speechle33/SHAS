@@ -23,13 +23,16 @@
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                     <li class="nav-item" style="padding-top: 8px;width: 100px;color:#155724;font-weight: bold;height: 30px;">
-                        <p>Welcome, {{ username }}</p>
+                        <p>Welcome, {{ current_user.nickname }}</p>
                     </li>
                     <li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
                         <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
-                    </li>
                 {% else %}
+                    </li>
                     <li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
+                        <a class="nav-link" href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+                    </li>
+					<li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
                         <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
                     </li>
                     <li class="nav-item" style="color:#155724; font-weight: bold;">
