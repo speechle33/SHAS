@@ -13,23 +13,23 @@
             {{ form.username.label }}<br>
             {{ form.username(class="form-control") }}
             {% for error in form.username.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
             {% endfor %}
         </div>
-        <div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
+            <div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
 		color:#c3cdd9; font-weight: bold;">
             {{ form.email.label }}<br>
             {{ form.email(class="form-control") }}
             {% for error in form.email.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
             {% endfor %}
         </div>
-        <div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
-		color:#c3cdd9; font-weight: bold;">
+        <br><div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
+        color:#c3cdd9; font-weight: bold;">
             {{ form.password.label }}<br>
             {{ form.password(class="form-control") }}
             {% for error in form.password.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
             {% endfor %}
         </div>
         <div class="form-group" style="width: 300px;height: 80px; 
@@ -37,7 +37,7 @@
             {{ form.password2.label }}<br>
             {{ form.password2(class="form-control") }}
             {% for error in form.password2.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
             {% endfor %}
         </div>
         <button type="submit" class="btn btn-primary">Register</button>
@@ -46,4 +46,15 @@
 <!--     <a href="{{ url_for('main.index') }}">Back to Home</a> -->
     </p>
 </div>
+
+<script>
+    // Функция для удаления всех элементов с классом 'error-message' через 8 секунд
+    setTimeout(function() {
+        let errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(function(message) {
+            message.remove();
+        });
+    }, 8000);
+</script>
+
 {% endblock %}

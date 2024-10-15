@@ -22,41 +22,44 @@
 	
     <h4 style="padding-left: 400px;color: #c3cdd9;">Dealer's Score: {{ state['dealer_score'] }}</h4>
     {% if state['game_over'] %}
-	    <div class="container">
-		<div class="row">
-    <div class="col-sm"></div>
-    <div class="col-sm">
-        <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
-            <button type="submit" class="btn btn-success mt-3">Play Again</button>
-        </form>
-    </div>
-	
-	<div class="col-sm">
-<div id="game-over-msg">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-danger mt-3">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
-</div>	
-	
-	
-	</div>
-</div></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm"></div>
+                <div class="col-sm">
+                    {% if balance == 0 %}
+                        <form method="get" action="{{ url_for('main.index_page') }}">
+                            <button type="submit" class="btn btn-success mt-3">Go home, Ludoman</button>
+                        </form>
+                    {% else %}
+                        <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
+                            <button type="submit" class="btn btn-success mt-3">Play Again</button>
+                        </form>
+                    {% endif %}
+                </div>
+                <div class="col-sm">
+                    <div id="game-over-msg">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
     {% else %}
-	    <div class="container">
-		<div class="row">
-        <form method="post" action="{{ url_for('main.game', session_id=session_id) }}">
-            <button name="take_card" value="1" type="submit" class="btn btn-primary">Take Card</button>
-        </form>
-        <form method="post" action="{{ url_for('main.game', session_id=session_id) }}" 
-		style="padding-left: 10px;">
-            <button name="pass" value="1" type="submit" class="btn btn-secondary">Pass</button>
-        </div></div>
-		</form>
+        <div class="container">
+            <div class="row">
+                <form method="post" action="{{ url_for('main.game', session_id=session_id) }}">
+                    <button name="take_card" value="1" type="submit" class="btn btn-primary">Take Card</button>
+                </form>
+                <form method="post" action="{{ url_for('main.game', session_id=session_id) }}" style="padding-left: 10px;">
+                    <button name="pass" value="1" type="submit" class="btn btn-secondary">Pass</button>
+                </form>
+            </div>
+        </div>
     {% endif %}
 
 
