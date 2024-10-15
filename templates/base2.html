@@ -11,10 +11,21 @@
     <a class="navbar-brand" style="color:#155724; font-weight: bold;" href="{{ url_for('main.index') }}">Blackjack Game</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item" style="padding-top: 8px;width: 130px;color:#155724;font-weight: bold;height: 30px;">
+
+            <li class="nav-item" style="padding-right: 300px;">
+                <form method="post" action="{{ url_for('main.change_background') }}" style="display: flex; align-items: center;">
+                    <select id="background_image" name="background_image" class="form-control" style="margin-right: 10px; width: 177px;">
+                        <option value="https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950" {% if session.get('background_image') == 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950' %}selected{% endif %}>Poker table</option>
+                        <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s" {% if session.get('background_image') == 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s' %}selected{% endif %}>Another green</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary"> Change Background</button>
+                </form>
+            </li>
+
+            <li class="nav-item" style="padding-top: 8px;width: 100px;color:#155724;font-weight: bold;height: 30px;">
                 <p>Welcome,</p>
             </li>
-            <li class="nav-item" style="padding-top: 2px;width: 80px;color:#1807ff9c;font-weight: bold;height: 30px;font-size: 24px">
+            <li class="nav-item" style="padding-top: 8px;width: 80px;color:#1807ff9c;font-weight: bold;height: 30px;">
                 <p>{{ current_user.nickname }}</p>
             </li>
             <li class="nav-item" style="padding-top: 8px;width: 110px;color:#155724;font-weight: bold;height: 30px;">
@@ -32,20 +43,10 @@
         </ul>
     </div>
 </nav>
-<div class="container">
-    <form method="post" action="{{ url_for('main.change_background') }}" style="width: 200px;>
-        <div class="form-group">
-            <br>
-            <select id="background_image" name="background_image" class="form-control">
-                <option value="https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950" {% if session.get('background_image') == 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950' %}selected{% endif %}>Poker table</option>
-                <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s" {% if session.get('background_image') == 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s' %}selected{% endif %}>Another green</option>
-            </select>
-        </div><br>
-        <button type="submit" class="btn btn-primary" style="
-    margin-left: 125px;">Change Background</button>
-    </form>
+<!-- <div class="container">
+
     <div class="mt-3" style="width: 0;">
-    </div>
+    </div> -->
 </div>
 {% block content %}{% endblock %}
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

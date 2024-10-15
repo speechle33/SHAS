@@ -306,3 +306,12 @@ def leaderboard():
     prev_url = url_for('main.leaderboard', page=users_paginated.prev_num) if users_paginated.has_prev else None
 
     return render_template('leaderboard.html', users_paginated=users_paginated.items, next_url=next_url, prev_url=prev_url)
+	
+@bp.route('/rules')
+def rules():
+    return render_template('rules.html')
+	
+@bp.route('/set_language/<lang>')
+def set_language(lang):
+    session['language'] = lang
+    return redirect(request.referrer)

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Game Rules - Blackjack{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-image: url('https://law-n-life.ru/wp-content/uploads/2024/06/640px-holdem.jpg');
+        background-size: cover; /* Подгоняет изображение под размер экрана */
+        background-position: center; /* Центрирует изображение */
+        background-repeat: no-repeat; /* Не повторяет изображение */
+        color: #ffffff; /* Цвет текста по умолчанию */
+    }
+
+    .container {
+        background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон для читаемости текста */
+        padding: 5px;
+        border-radius: 10px; /* Закругление углов контейнера */
+    }
+</style>
+<div class="container" style="
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;">
+    <h2>Game Rules</h2>
+    <p>
+        Blackjack is a card game where the goal is to score more points than the dealer without exceeding 21 points.
+    </p>
+    <h2>Ground rules::</h2>
+    <ul>
+        <li>The game uses a standard deck of 52 cards.</li>
+        <li>The player receives two cards.</li>
+        <li>The player scores points based on the values of the cards:
+            <ul>
+                <li>Cards 2 through 10 have a face value.</li>
+                <li>Pictures (Jacks, Ladies, Kings) are worth 10 points.</li>
+                <li>Aces are worth 11 points if the sum of the cards in your hand is 21 points when you receive an Ace. Otherwise, an Ace is worth 1.</li>
+            </ul>
+        </li>
+        <li>The player can take additional cards (“Hit”) or stop (“Stand”).</li>
+        <li>If a player's point total exceeds 21, the player loses.</li>
+        <li>After the player completes his turn, the dealer reveals his cards and fills until he has at least 17 points.</li>
+        <li>A player wins if his point total is higher than the dealer's point total.</li>
+        <li>If the sums of the player's and dealer's points are equal, the player loses.</li>
+    </ul>
+    <p>
+        Good luck in the game and may luck be with you!
+    </p>
+</div>
+{% endblock %}
