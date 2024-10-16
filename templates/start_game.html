@@ -9,14 +9,18 @@
 <br><br> 
     <form method="post" action="{{ url_for('main.start_game', session_id=session_id) }}">
         {{ form.hidden_tag() }}
-        <div class="form-group" style="width: 200px;color:#c3cdd9;font-weight: bold;">
-            <label for="bet_amount">Bet Amount:</label>
+        <div class="form-group" style="width: 200px;color:#FFFFFF;font-weight: bold;">
+            <label for="bet_amount">Your bet:</label>
             {{ form.bet_amount(class="form-control") }}
             {% for error in form.bet_amount.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </div>
-        <button type="submit" class="btn btn-success mt-3">Bet and game</button>
+        <button type="submit" 
+				style="margin-right: 0px;width: 142px;
+				height: 37px;font-weight: bold;
+				background-color: rgba(19, 134, 68, 0.9);
+				margin-top: 5px;" class="btn btn-success mt-3">Play</button>
     </form>
 </div>
 {% endblock %}

@@ -7,17 +7,41 @@
 </head>
 <body>
     <style>
-	body {
-        background-image: url('https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_66225cfdc80f781df5ecc96e_66225d92cae932444e931c3e/scale_1200');
- 		background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            margin: 0;
+    body {
+        background-image: url('https://images.unsplash.com/photo-1626775238053-4315516eedc9?q=80&w=1473&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+		font-family: Spoof, sans-serif
+    }
+	.btn, .nav-link {
+    	outline: none; /* Убираем обводку */
+	}
+
+	.btn:focus, .nav-link:focus {
+    	outline: none; /* Убираем обводку при фокусе */
+    	box-shadow: none; /* Убираем тень при фокусе */
+	}
+
+	.btn:active, .nav-link:active {
+    	outline: none; /* Убираем обводку при активном состоянии */
+   		box-shadow: none; /* Убираем тень при активном состоянии */
+	}
+	  .navbar-dark .navbar-nav .nav-link {
+    color: white; /* Set text color to white */
+  }
+
+  .navbar-dark .navbar-nav .nav-link:hover {
+    color: #E0E0E0; /* Optional: Change color on hover */
+  }
+  .btn-primary {
+    border: none;
     </style>
 	
-	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgba(255, 255, 255, 0.7);padding-bottom: 15px;">
-        <a class="navbar-brand" style="color:#155724; font-weight: bold;" href="{{ url_for('main.index') }}">Blackjack Game</a>
+   <nav style="background-color: rgba(255, 255, 255, 0.4);padding-top: 0px;padding-bottom: 0px;" class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" style="color:#FFFFFF; font-weight: bold; font-size: 32px; font-family: Spoof, sans-serif;" href="{{ url_for('main.index') }}">BLACKJACK</a>
         <div class="collapse navbar-collapse">
          <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
@@ -53,12 +77,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-<div class="container mt-5">
-
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height: 100%;">
+        <div class="col-12 text-center">
     <form method="POST">
         {{ form.hidden_tag() }}
 
-        <h3 style="color:#c3cdd9;">Are you sure you want to delete this user?</h3>
+        <h3 style="color:#FFFFFF;">Are you sure you want to delete this user?</h3>
 <br>
         <div>
             {{ form.confirm(class="btn btn-danger") }}

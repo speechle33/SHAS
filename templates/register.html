@@ -4,47 +4,60 @@
 
 {% block content %}
 
-<div class="container mt-5">
-    <h2 style="color:#c3cdd9">Register</h2>
-    <form method="post" action="">
-        {{ form.hidden_tag() }}
-        <div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
-        color:#c3cdd9; font-weight: bold;">
-            Login<br>
-            {{ form.username(class="form-control") }}
-            {% for error in form.username.errors %}
-                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
-            {% endfor %}
+<div class="container"> <!-- Устанавливаем высоту контейнера -->
+    <div class="row justify-content-center align-items-center h-100"> <!-- Центрируем содержимое -->
+        <div class="col-12 col-md-4 text-center"> <!-- Устанавливаем ширину колонки и центрируем текст -->
+            <h2 style="font-weight: bold;">Register</h2>
+			<h4 style="font-size:14px;margin-top:5px;  margin-bottom:30px">Ka3uHbI4 is waiting for you!</h4>
+            <form method="post" action="">
+                {{ form.hidden_tag() }}
+                <div class="form-group" style="margin-bottom: 0px; 
+				width: 200px; height: 80px; margin: 0 auto;">
+                    <label style="padding-right:143px;">Username<br></label>
+                    {{ form.username(class="form-control") }}
+                    {% for error in form.username.errors %}
+                        <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group" style="margin-bottom: 0px; 
+				width: 200px; height: 80px; margin: 0 auto;">
+                    <label style="padding-right:110px;
+					margin-bottom: 0px;margin-top: 8px;">
+					{{ form.nickname.label }}<br></label>
+                    {{ form.nickname(class="form-control") }}
+                    {% for error in form.nickname.errors %}
+                        <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group" style="margin-bottom: 0px; 
+				width: 200px; height: 80px; margin: 0 auto;">
+                    <label style="padding-right:110px;
+					margin-bottom: 0px;margin-top: 15px;">
+					{{ form.password.label }}</label>
+                    {{ form.password(class="form-control") }}
+                    {% for error in form.password.errors %}
+                        <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group" style="margin-bottom: 0px; 
+				width: 200px; height: 80px; margin: 0 auto;">
+                    <label style="padding-right:110px;width: 260px;
+					margin-bottom: 0px;margin-top: 15px;">
+					{{ form.password2.label }}</label>
+                    {{ form.password2(class="form-control") }}
+                    {% for error in form.password2.errors %}
+                        <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <h4 style="font-size:14px; margin-top: 35px; color: blue;">After registration you need Log In again!</h4>
+                <button type="submit" class="btn btn-primary"
+				style="margin-right: 0px;width: 142px;
+				height: 37px;font-weight: bold;
+				background-color: rgba(19, 134, 68, 0.9);
+				margin-top: 5px;">Register</button>
+            </form>
         </div>
-        <div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
-        color:#c3cdd9; font-weight: bold;">
-            {{ form.nickname.label }}<br>
-            {{ form.nickname(class="form-control") }}
-            {% for error in form.nickname.errors %}
-                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
-            {% endfor %}
-        </div>
-        <br><div class="form-group" style="margin-bottom: 0px;width: 300px;height: 80px; 
-        color:#c3cdd9; font-weight: bold;">
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control") }}
-            {% for error in form.password.errors %}
-                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
-            {% endfor %}
-        </div>
-        <div class="form-group" style="width: 300px;height: 80px; 
-        color:#c3cdd9; font-weight: bold;">
-            {{ form.password2.label }}<br>
-            {{ form.password2(class="form-control") }}
-            {% for error in form.password2.errors %}
-                <span class="error-message" style="color: red; font-size: 0.8rem;">[{{ error }}]</span>
-            {% endfor %}
-        </div> <br>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
-    <p>
-<!--     <a href="{{ url_for('main.index') }}">Back to Home</a> -->
-    </p>
+    </div>
 </div>
 
 <script>
@@ -54,7 +67,12 @@
         errorMessages.forEach(function(message) {
             message.remove();
         });
-    }, 8000);
+    }, 5000);
 </script>
-
+<style>
+    body {
+    	color: white;
+		font-family: Spoof, sans-serif
+    }
+/<style>
 {% endblock %}

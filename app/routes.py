@@ -73,23 +73,29 @@ def login():
         session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
         session['session_id'] = session_id
         return redirect(url_for('main.index2', session_id=session_id))
+
     form = LoginForm()
+
     if request.method == 'GET' and 'username' in request.args:
         form.username.data = request.args.get('username')
+
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not check_password_hash(user.password_hash, form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('main.login'))
-        login_user(user, remember=form.remember_me.data)
-        session['logged_in_user'] = user.username
+            form.username.errors.append('An incorrect login or password has been entered.')
+            # оставляем на форме, чтобы ошибка отображалась в соответствующем месте
+        else:
+            login_user(user, remember=form.remember_me.data)
+            session['logged_in_user'] = user.username
 
-        session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
-        session['session_id'] = session_id
-        next_page = request.args.get('next')
-        if not next_page or urlparse(next_page).netloc != '':
-            next_page = url_for('main.index2', session_id=session_id)
-        return redirect(next_page)
+            session_id = uuid.uuid4().hex[:4]  # генерируем 4 символа
+            session['session_id'] = session_id
+            next_page = request.args.get('next')
+            if not next_page or urlparse(next_page).netloc != '':
+                next_page = url_for('main.index2', session_id=session_id)
+
+            return redirect(next_page)
+
     return render_template('login.html', title='Sign In', form=form)
 
 @bp.route('/logout')

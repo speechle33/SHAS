@@ -3,8 +3,26 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block content %}
-<h3 style="color:#c3cdd9; font-weight: bold;">Leaderboard</h3>
-<table class="table table-striped" style="color:#c3cdd9">
+
+<style>
+    body {
+        background-size: cover; /* Подгоняет изображение под размер экрана */
+        background-position: center; /* Центрирует изображение */
+        background-repeat: no-repeat; /* Не повторяет изображение */
+        color: #ffffff; /* Цвет текста по умолчанию */
+		font-family: Spoof, sans-serif
+    }
+
+    .container {
+        background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон для читаемости текста */
+        padding: 5px;
+        border-radius: 10px; /* Закругление углов контейнера */
+    }
+</style>
+
+
+<h3 style="font-weight: bold;">Leadership board</h3>
+<table class="table table-striped" style="color:#FFFFFF">
     <thead>
         <tr>
             <th>Nickname</th>

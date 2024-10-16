@@ -7,8 +7,42 @@
 </head>
 <body style="background-image: url('{{ session.get('background_image', 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; margin: 0;">
 
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgba(255, 255, 255, 0.7);padding-bottom: 15px;">
-    <a class="navbar-brand" style="color:#155724; font-weight: bold;" href="{{ url_for('main.index') }}">Blackjack Game</a>
+<style>
+    body {
+        background-image: url('https://images.unsplash.com/photo-1626775238053-4315516eedc9?q=80&w=1473&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+		font-family: Spoof, sans-serif
+    }
+	.btn, .nav-link {
+    	outline: none; /* Убираем обводку */
+	}
+
+	.btn:focus, .nav-link:focus {
+    	outline: none; /* Убираем обводку при фокусе */
+    	box-shadow: none; /* Убираем тень при фокусе */
+	}
+
+	.btn:active, .nav-link:active {
+    	outline: none; /* Убираем обводку при активном состоянии */
+   		box-shadow: none; /* Убираем тень при активном состоянии */
+	}
+	  .navbar-dark .navbar-nav .nav-link {
+    color: white; /* Set text color to white */
+  }
+
+  .navbar-dark .navbar-nav .nav-link:hover {
+    color: #E0E0E0; /* Optional: Change color on hover */
+  }
+  .btn-primary {
+    border: none;
+</style>
+
+    <nav style="background-color: rgba(255, 255, 255, 0.4);padding-top: 0px;padding-bottom: 0px;" class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" style="color:#FFFFFF; font-weight: bold; font-size: 32px; font-family: Spoof, sans-serif;" href="{{ url_for('main.index') }}">BLACKJACK</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
 
@@ -16,28 +50,27 @@
                 <form method="post" action="{{ url_for('main.change_background') }}" style="display: flex; align-items: center;">
                     <select id="background_image" name="background_image" class="form-control" style="margin-right: 10px; width: 177px;">
                         <option value="https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950" {% if session.get('background_image') == 'https://img.freepik.com/premium-photo/poker-table-felt-background-high-resolution-photo_463999-1215.jpg?w=950' %}selected{% endif %}>Poker table</option>
-                        <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s" {% if session.get('background_image') == 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWz-59bwuhxMlhXpAfnYv8-_N9U-Hfj1rHhA&s' %}selected{% endif %}>Another green</option>
+                        <option value="https://images.unsplash.com/photo-1545486332-9e0999c535b2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" {% if session.get('background_image') == 'https://images.unsplash.com/photo-1545486332-9e0999c535b2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' %}selected{% endif %}>Black theme</option>
                     </select>
                     <button type="submit" class="btn btn-primary"> Change Background</button>
                 </form>
             </li>
-
-            <li class="nav-item" style="padding-top: 8px;width: 100px;color:#155724;font-weight: bold;height: 30px;">
-                <p>Welcome,</p>
+            <li class="nav-item" style="color:#FFFFFF; padding-top: 8px;width: 100px;font-weight: bold;height: 30px;">
+                <p>Player,</p>
             </li>
-            <li class="nav-item" style="padding-top: 8px;width: 80px;color:#1807ff9c;font-weight: bold;height: 30px;">
+            <li class="nav-item" style="color:#FFFFFF;padding-top: 8px;width: 80px;font-weight: bold;height: 30px;">
                 <p>{{ current_user.nickname }}</p>
             </li>
-            <li class="nav-item" style="padding-top: 8px;width: 110px;color:#155724;font-weight: bold;height: 30px;">
+            <li class="nav-item" style="color:#FFFFFF;padding-top: 8px;width: 110px;font-weight: bold;height: 30px;">
                 <p>Your balance</p>
             </li>
-            <li class="nav-item" style="padding-top: 8px;width: 80px;color:#155724;font-weight: bold;height: 30px;">
+            <li class="nav-item" style="color:#FFFFFF;padding-top: 8px;width: 80px;font-weight: bold;height: 30px;">
                 <p>
                     <img src="https://w7.pngwing.com/pngs/388/12/png-transparent-coin-business-finance-loan-payment-coin-saving-gold-coin-payment.png" alt="картинка монеток" style="height: 20px; vertical-align: middle;">
                     {{ current_user.balance }}
                 </p>
             </li>
-            <li class="nav-item" style="padding-right: 10px; color:#155724; font-weight: bold;">
+            <li class="nav-item" style="color:#FFFFFF;padding-right: 10px; font-weight: bold;">
                 <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
             </li>
         </ul>

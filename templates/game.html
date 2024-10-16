@@ -3,22 +3,22 @@
 {% block title %}Blackjack Game{% endblock %}
 
 {% block content %}
-<h3 style="padding-left: 400px;color: #c3cdd9;">Your Hand</h3>
+<h3 style="padding-left: 400px;color: #FFFFFF;">Your Hand</h3>
 <div id="player-hand" style="padding-left: 400px;">
     {% for card in state['player_hand'] %}
         <img src="{{ card.image }}" alt="{{ card.value }} of {{ card.suit }}" style="width: 100px; margin: 5px;">
     {% endfor %}
-    <h4 style="color: #c3cdd9;">Your Score: {{ state['player_score'] }}</h4>
+    <h4 style="color: #FFFFFF;">Your Score: {{ state['player_score'] }}</h4>
 </div>
 
-<h3 style="padding-left: 400px;color: #c3cdd9;">Dealer's Hand</h3>
+<h3 style="padding-left: 400px;color: #FFFFFF;">Dealer's Hand</h3>
 <div id="dealer-hand" style="padding-left: 400px;">
     {% for card in state['dealer_hand'] %}
         <img src="{{ card.image }}" alt="{{ card.value }} of {{ card.suit }}" style="width: 100px">
     {% endfor %}
 </div>
 
-<h4 style="padding-left: 400px;color: #c3cdd9;">Dealer's Score: {{ state['dealer_score'] }}</h4>
+<h4 style="padding-left: 400px;color: #FFFFFF;">Dealer's Score: {{ state['dealer_score'] }}</h4>
 
 {% if state['game_over'] %}
     <div class="container">

@@ -4,15 +4,43 @@
 
 {% block content %}
 
-<div class="container mt-5">
-    <form method="get" action="{{ url_for('main.start_game', session_id=session_id) }}">
-        <button type="submit" class="btn btn-success mt-3" {% if balance == 0 %}disabled{% endif %}>Start Game</button>
-    </form>
+<div class="container mt-5"> <!-- Высота контейнера на 100% вьюпорта -->
+    <div class="row justify-content-center align-items-center h-100"> <!-- Центрируем содержимое -->
+        <div class="col-12 text-center"> <!-- Центрируем текст -->
+         
+			<h2>Hello, {{ current_user.nickname }}</h2>
+			<h4 style='padding-top=10px'>Your balance, {{ current_user.balance }}</h4>
+			
+			<form method="get" style="margin-top: 20px;" action="{{ url_for('main.start_game', session_id=session_id) }}">
+                <button type="submit" class="btn btn-success mt-3"
+				style="margin-right: 0px;width: 142px;
+				height: 37px;margin-top: 20px;
+				padding-top: 5px;font-weight: bold;
+				background-color: rgba(19, 134, 68, 0.9);
+				margin-top: 30px;"
+				 {% if balance == 0 %}disabled{% endif %}>New Game</button>
+            </form>
 
-    <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">
-        {{ logout_form.hidden_tag() }}
-        <input type="hidden" name="username" value="{{ username }}">
-        <button type="submit" class="btn btn-danger">Delete User</button>
-    </form>
+            <form method="post" action="{{ url_for('main.delete_user') }}" class="mt-3">
+                {{ logout_form.hidden_tag() }}
+                <input type="hidden" name="username" value="{{ username }}">
+                <button type="submit" class="btn btn-danger"
+				style="margin-right: 0px;width: 142px;
+				height: 37px;margin-top: 20px;
+				padding-top: 5px;font-weight: bold;
+				background-color: rgba(225, 0, 0, 0.9);
+				margin-top: 30px;"
+				>Delete User</button>
+            </form>			
+        </div>
+    </div>
 </div>
+
+<style>
+    body {
+    	color: white;
+		font-family: Spoof, sans-serif
+    }
+/<style>
+
 {% endblock %}

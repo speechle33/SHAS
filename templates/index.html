@@ -7,23 +7,30 @@
     <h2 id="welcome-message" style="color: #ffffff; margin-bottom: 30px; display: none;">Welcome to the Ka3uHbI4</h2>
 
     <div id="question-container" style="position: relative; height: 200px; margin: 0 auto;">
-        <div class="question" style="display: none;">Ready to try your luck?</div>
-        <div class="question" style="display: none;">Can you beat the casino?</div>
-        <div class="question" style="display: none;">What's your maximum bet?</div>
-        <div class="question" style="display: none;">Are you ready to win?</div>
+        <div class="question" style="display: none; font-size: 32px;">Ready to try your luck?</div>
+        <div class="question" style="display: none;font-size: 32px;">Can you beat the casino?</div>
+        <div class="question" style="display: none;font-size: 32px;">What's your maximum bet?</div>
+        <div class="question" style="display: none;font-size: 32px;">Are you ready to win?</div>
     </div>
 <div class="container" id="final-message">
-    <div style="display: none; margin-top: 30px;" class="row d-flex align-items-center">
-        <div class="col-sm text-right">
-            <a class="btn btn-primary" href="{{ url_for('main.login') }}" style="margin-right: 10px;">Login</a>
-        </div>
-        <div class="col-sm text-center">
-            <h2 style="color: #ffffff;">or</h2>
-        </div>
-        <div class="col-sm text-left">   
-            <a class="btn btn-primary" href="{{ url_for('main.register') }}">Register</a>
-        </div>
-    </div>
+    <div class="row"> 
+	<div class="col-12" style="
+    margin-top: 65px;">
+            <a class="btn btn-primary" href="/login"
+			style="margin-right: 0px;width: 142px;
+			height: 37px;margin-bottom: 30px;
+			padding-top:7px;font-weight: bold;
+			background-color: rgba(255, 255, 255, 0.7);">
+			Log In</a>
+        </div> 
+			<div class="col-12"> 
+            <a class="btn btn-primary" href="/register"
+			style="width: 142px;height: 37px;
+			padding-top: 7px;padding-bottom: 10px;
+			font-weight: bold;
+			background-color: rgba(255, 255, 255, 0.7);
+			">Register</a>
+    </div></div>
 </div>
 
 <style>
@@ -52,17 +59,25 @@
         text-align: center;
     }
 
-    .btn {
-        color: #ffffff; /* Цвет текста кнопок */
-        background-color: #007bff; /* Цвет фона кнопок */
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-    }
+	.btn {
+    	color: #FFFFFF; /* Цвет текста кнопок */
+    	background-color: #D1D1D1; /* Цвет фона кнопок */
+    	padding: 10px 20px;
+    	text-decoration: none;
+    	border-radius: 5px;
+    	outline: none; /* Убираем обводку */
+	}
 
-    .btn:hover {
-        background-color: #0056b3; /* Цвет фона при наведении */
-    }
+	.btn:focus {
+   	 outline: none;
+	 outline: none !important; /* Убираем обводку при фокусе */
+	}
+
+	.btn:hover {
+  	  background-color: #8A8585; /* Цвет фона при наведении */
+	}
+	.btn-primary {
+    border: none;
 </style>
 
 <script>
@@ -79,7 +94,7 @@
                 setTimeout(function() {
                     questions[currentQuestion - 1].style.display = "none";
                     showNextQuestion();
-                }, 3000); // показывать каждый вопрос на 3 секунды
+                }, 1800); // показывать каждый вопрос на 1,8 секунды
             } else {
                 // После всех вопросов показываем финальное сообщение и приветствие
                 finalMessage.style.display = "block";
